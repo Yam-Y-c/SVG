@@ -88,21 +88,24 @@ function getPosts(searchParams) {
 }
 
 function renderPost(post, startY, postNumber) {
-  const titleLines = wrapText(post.title, 38);
-  const bodyLines = wrapText(post.body, 43);
+  // 한글은 대체로 글자 크기만큼의 가로 폭을 차지한다.
+  // 실제 표시 폭(약 616px)에 맞춰 보수적으로 줄바꿈한다.
+  const titleLines = wrapText(post.title, 20);
+  const bodyLines = wrapText(post.body, 25);
   const comments = post.comments.length ? post.comments : ["익명1|아직 댓글이 없습니다."];
   const commentData = comments.map((raw, index) => {
     const separator = raw.indexOf("|");
     const author = separator >= 0 ? raw.slice(0, separator) : `익명${index + 1}`;
     const content = separator >= 0 ? raw.slice(separator + 1) : raw;
-    const lines = wrapText(content, 40);
+    const lines = wrapText(content, 24);
     return { author, lines, height: 48 + lines.length * 32 };
   });
 
   const titleHeight = titleLines.length * 40;
   const bodyHeight = bodyLines.length * 36;
   const commentsHeight = commentData.reduce((sum, comment) => sum + comment.height, 0);
-  const height = 86 + titleHeight + bodyHeight + 80 + commentsHeight + 22;
+  // 아래에서 실제로 이동하는 y값과 하단 여백을 그대로 반영한다.
+  const height = 219 + titleHeight + bodyHeight + commentsHeight + 24;
   let y = startY;
   const svg = [];
 
