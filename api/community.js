@@ -95,10 +95,14 @@ function renderPost(post, startY, postNumber) {
   const comments = post.comments.length ? post.comments : ["익명1|아직 댓글이 없습니다."];
   const commentData = comments.map((raw, index) => {
     const separator = raw.indexOf("|");
-    const author = separator >= 0 ? raw.slice(0, separator) : `익명${index + 1}`;
+    const authorPart = separator >= 0 ? raw.slice(0, separator) : `익명${index + 1}`;
     const content = separator >= 0 ? raw.slice(separator + 1) : raw;
-    const lines = wrapText(content, 24);
-    return { author, lines, height: 48 + lines.length * 32 };
+    const replySeparator = authorPart.indexOf(">");
+    const isReply = replySeparator >= 0;
+    const author = isReply ? authorPart.slice(0, replySeparator) : authorPart;
+    const target = isReply ? authorPart.slice(replySeparator + 1) : "";
+    const lines = wrapText(content, isReply ? 22 : 24);
+    return { author, target, isReply, lines, height: 48 + lines.length * 32 };
   });
 
   const titleHeight = titleLines.length * 40;
@@ -125,11 +129,20 @@ function renderPost(post, startY, postNumber) {
   y += 26;
 
   commentData.forEach((comment, index) => {
-    svg.push(`<rect x="40" y="${y}" width="640" height="${comment.height}" fill="${index % 2 ? "#fbfcfe" : "#f4f8fd"}"/>`);
-    svg.push(`<rect x="40" y="${y}" width="3" height="${comment.height}" fill="${index % 2 ? "#d7e7fb" : "#3a8fff"}" opacity="0.75"/>`);
-    svg.push(`<path d="M58 ${y + 25} h12 v12" fill="none" stroke="#7a90b0" stroke-width="2"/>`);
-    svg.push(`<text x="84" y="${y + 34}" font-size="18" font-weight="700" fill="#536985">${escapeXml(comment.author || `익명${index + 1}`)}</text>`);
-    svg.push(textBlock(comment.lines, 84, y + 68, { size: 21, color: "#202b3e", lineHeight: 32 }));
+    const boxX = comment.isReply ? 72 : 40;
+    const boxWidth = comment.isReply ? 608 : 640;
+    const contentX = comment.isReply ? 116 : 84;
+    const fill = comment.isReply ? "#edf5ff" : index % 2 ? "#fbfcfe" : "#f4f8fd";
+    // 답글 대상은 구조 판별에만 사용하고 화면에는 작성자만 표시한다.
+    const label = comment.author || `익명${index + 1}`;
+
+    svg.push(`<rect x="${boxX}" y="${y}" width="${boxWidth}" height="${comment.height}" fill="${fill}"/>`);
+    svg.push(`<rect x="${boxX}" y="${y}" width="3" height="${comment.height}" fill="${comment.isReply ? "#7db3f4" : index % 2 ? "#d7e7fb" : "#3a8fff"}" opacity="0.8"/>`);
+    if (!comment.isReply) {
+      svg.push(`<path d="M58 ${y + 25} v12 h12" fill="none" stroke="#7a90b0" stroke-width="2"/>`);
+    }
+    svg.push(`<text x="${contentX}" y="${y + 34}" font-size="18" font-weight="700" fill="${comment.isReply ? "#3a71b8" : "#536985"}">${escapeXml(label)}</text>`);
+    svg.push(textBlock(comment.lines, contentX, y + 68, { size: 21, color: "#202b3e", lineHeight: 32 }));
     y += comment.height;
   });
 
