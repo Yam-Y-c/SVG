@@ -65,7 +65,7 @@ function getPosts(searchParams) {
   };
 
   const posts = [];
-  for (let index = 1; index <= 2; index += 1) {
+  for (let index = 1; index <= 3; index += 1) {
     const title = searchParams.get(`t${index}`);
     const body = searchParams.get(`b${index}`);
     const comments = searchParams.getAll(`c${index}`);
