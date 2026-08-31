@@ -40,7 +40,7 @@ function wrapText(text, maxUnits) {
 function textBlock(lines, x, y, options = {}) {
   const {
     size = 24,
-    color = "#202735",
+    color = "#182235",
     weight = 400,
     lineHeight = Math.round(size * 1.55),
   } = options;
@@ -106,26 +106,27 @@ function renderPost(post, startY, postNumber) {
   let y = startY;
   const svg = [];
 
-  svg.push(`<rect x="24" y="${y}" width="672" height="${height}" rx="5" fill="#ffffff" stroke="#cbd3e1"/>`);
-  svg.push(`<rect x="24" y="${y}" width="672" height="8" rx="4" fill="#172b4d"/>`);
+  svg.push(`<rect x="24" y="${y}" width="672" height="${height}" rx="8" fill="#ffffff" stroke="#cbd8e8"/>`);
+  svg.push(`<rect x="24" y="${y}" width="672" height="8" rx="4" fill="#3a8fff"/>`);
   y += 54;
-  svg.push(`<text x="52" y="${y}" font-size="18" font-weight="700" fill="#6b7890">NO.${String(postNumber).padStart(4, "0")} · 익명</text>`);
+  svg.push(`<text x="52" y="${y}" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="1.5" fill="#7a90b0">POST // ${String(postNumber).padStart(4, "0")} · 익명</text>`);
   y += 45;
-  svg.push(textBlock(titleLines, 52, y, { size: 29, weight: 700, color: "#13233f", lineHeight: 40 }));
+  svg.push(textBlock(titleLines, 52, y, { size: 29, weight: 700, color: "#080c14", lineHeight: 40 }));
   y += titleHeight + 26;
-  svg.push(textBlock(bodyLines, 52, y, { size: 23, color: "#293447", lineHeight: 36 }));
+  svg.push(textBlock(bodyLines, 52, y, { size: 23, color: "#253044", lineHeight: 36 }));
   y += bodyHeight + 30;
-  svg.push(`<line x1="52" y1="${y}" x2="668" y2="${y}" stroke="#d9dfE9"/>`);
+  svg.push(`<line x1="52" y1="${y}" x2="668" y2="${y}" stroke="#d7e2ef"/>`);
   y += 38;
-  svg.push(`<text x="52" y="${y}" font-size="20" font-weight="700" fill="#31415d">댓글 ${comments.length}</text>`);
-  svg.push(`<text x="648" y="${y}" text-anchor="end" font-size="20" fill="#c34754">♥ ${escapeXml(post.likes)}</text>`);
+  svg.push(`<text x="52" y="${y}" font-size="20" font-weight="700" fill="#3a8fff">REPLY ${comments.length}</text>`);
+  svg.push(`<text x="648" y="${y}" text-anchor="end" font-size="20" fill="#ff4d6d">♥ ${escapeXml(post.likes)}</text>`);
   y += 26;
 
   commentData.forEach((comment, index) => {
-    svg.push(`<rect x="40" y="${y}" width="640" height="${comment.height}" fill="${index % 2 ? "#f7f9fc" : "#f1f4f8"}"/>`);
-    svg.push(`<path d="M58 ${y + 25} h12 v12" fill="none" stroke="#8490a4" stroke-width="2"/>`);
-    svg.push(`<text x="84" y="${y + 34}" font-size="18" font-weight="700" fill="#43516a">${escapeXml(comment.author || `익명${index + 1}`)}</text>`);
-    svg.push(textBlock(comment.lines, 84, y + 68, { size: 21, color: "#273247", lineHeight: 32 }));
+    svg.push(`<rect x="40" y="${y}" width="640" height="${comment.height}" fill="${index % 2 ? "#fbfcfe" : "#f4f8fd"}"/>`);
+    svg.push(`<rect x="40" y="${y}" width="3" height="${comment.height}" fill="${index % 2 ? "#d7e7fb" : "#3a8fff"}" opacity="0.75"/>`);
+    svg.push(`<path d="M58 ${y + 25} h12 v12" fill="none" stroke="#7a90b0" stroke-width="2"/>`);
+    svg.push(`<text x="84" y="${y + 34}" font-size="18" font-weight="700" fill="#536985">${escapeXml(comment.author || `익명${index + 1}`)}</text>`);
+    svg.push(textBlock(comment.lines, 84, y + 68, { size: 21, color: "#202b3e", lineHeight: 32 }));
     y += comment.height;
   });
 
@@ -147,11 +148,19 @@ module.exports = function handler(request, response) {
   const height = y + 24;
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${height}" viewBox="0 0 ${WIDTH} ${height}">
-  <rect width="720" height="${height}" fill="#edf1f6"/>
-  <rect width="720" height="92" fill="#172b4d"/>
-  <rect y="92" width="720" height="4" fill="#607da9"/>
-  <text x="34" y="55" font-family="Arial, 'Noto Sans KR', sans-serif" font-size="27" font-weight="700" fill="#ffffff">히어로·빌런 갤러리</text>
-  <text x="686" y="54" text-anchor="end" font-family="Arial, 'Noto Sans KR', sans-serif" font-size="16" fill="#b9c7dc">ANONYMOUS BOARD</text>
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#3a8fff" stroke-width="1" opacity="0.055"/>
+    </pattern>
+  </defs>
+  <rect width="720" height="${height}" fill="#f7f9fc"/>
+  <rect width="720" height="${height}" fill="url(#grid)"/>
+  <rect width="720" height="92" fill="#080c14"/>
+  <rect y="91" width="720" height="2" fill="#3a8fff" opacity="0.75"/>
+  <rect x="30" y="26" width="4" height="35" fill="#3a8fff"/>
+  <text x="48" y="54" font-family="Arial, 'Noto Sans KR', sans-serif" font-size="26" font-weight="700" letter-spacing="1" fill="#e8edf5">히어로·빌런 갤러리</text>
+  <text x="686" y="42" text-anchor="end" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#3a8fff">K·HERO // BOARD</text>
+  <text x="686" y="62" text-anchor="end" font-family="Arial, sans-serif" font-size="11" letter-spacing="1.5" fill="#7a90b0">ANONYMOUS ACCESS</text>
   <g font-family="Arial, 'Noto Sans KR', 'Malgun Gothic', sans-serif">${rendered.join("")}</g>
 </svg>`;
 
