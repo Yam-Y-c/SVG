@@ -62,11 +62,21 @@ module.exports = function handler(request, response) {
   const score = Math.max(0, Math.min(10, Number.parseFloat(q.get("s") || "8.4") || 0));
   const rank = q.get("r") || "▲ 1위";
   const scale = q.get("d") || "광역 C급";
-  const location = q.get("loc") || "도심 중앙구";
-  const casualties = q.get("cas") || "0명";
+  const location = q.get("l") || q.get("loc") || "도심 중앙구";
+  const casualties = q.get("x") || q.get("cas") || "0명";
   const note = q.get("n") || "현장 통제 완료. 추가 피해 보고 없음.";
-  const tags = (q.getAll("tag").length ? q.getAll("tag") : ["신속대응", "시민보호", "협회해명요구"]).slice(0, 5);
-  const comments = (q.getAll("c").length ? q.getAll("c") : [
+  const compactTags = q.get("g");
+  const tags = (compactTags
+    ? compactTags.split("~").filter(Boolean)
+    : q.getAll("tag").length
+      ? q.getAll("tag")
+      : ["신속대응", "시민보호", "협회해명요구"]
+  ).slice(0, 5);
+  const rawComments = q.getAll("c");
+  const compactComments = rawComments.length === 1 && rawComments[0].includes("~")
+    ? rawComments[0].split("~").filter(Boolean)
+    : rawComments;
+  const comments = (compactComments.length ? compactComments : [
     "익명1|오늘 대응은 빨랐음",
     "익명2|대피 안내는 조금 늦었던 것 같은데",
     "익명3|현장에 있었는데 통제는 잘 됐음",
